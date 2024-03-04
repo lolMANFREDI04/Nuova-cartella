@@ -98,67 +98,67 @@ function getAllSLATypes() {
 document.addEventListener('DOMContentLoaded', function() {
     getAllSLATypes();
 });
-    // Funzione per ottenere e visualizzare i dati delle SLA
-    function getAllSLA() {
-        fetch('/SLA/api/GetAll', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data); // Controlla i dati ottenuti dalla chiamata API
-            const slaTableBody = document.querySelector('#sla_table tbody');
-            slaTableBody.innerHTML = ''; // Pulisce la tabella prima di aggiungere nuove righe
-
-            if (data && data.strings && data.strings.length > 0) {
-                data.strings.forEach(entry => {
-                    // Ottieni il nome del cliente corrispondente all'ID del cliente
-                    fetch(`/SLA/api/get_client_name/${entry["Client ID"]}`)
-                        .then(response => response.json())
-                        .then(clientData => {
-                            const clientName = clientData.client_name;
-                            const clientID = clientData.client_id;
-
-                            // Ottieni il nome del tipo di SLA corrispondente all'ID del tipo di SLA
-                            fetch(`/SLA/api/get_sla_type_name/${entry["SLA Type"]}`)
-                                .then(response => response.json())
-                                .then(slaTypeData => {
-                                    const slaTypeName = slaTypeData.sla_type_name;
-
-                                    // Aggiungi riga alla tabella
-                                    const row = slaTableBody.insertRow();
-                                    row.innerHTML = `
-                                        <td>${entry.ID}</td>
-                                        <td><a href="/manage/customers/${clientID}/view?cid={{session['current_case'].case_id}}"> ${clientName} </a></td>
-                                        <td>${slaTypeName}</td>
-                                        <td>${entry.CRITICAL}</td>
-                                        <td>${entry.HIGH}</td>
-                                        <td>${entry.MEDIUM}</td>
-                                        <td>${entry.LOW}</td>
-                                    `;
-                                });
-                        });
-                });
-            } else {
-                const row = slaTableBody.insertRow();
-                row.innerHTML = '<td colspan="7">Nessuna SLA trovata</td>'; // Modifica il colspan in base al numero di colonne
-            }
-        })
-        .catch(error => console.error('Errore:', error));
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        getAllSLA();
-    });
-
-    function refresh_sla_table(do_notify) {
-        getAllSLA();
-        if (do_notify !== undefined) {
-            notify_success("Refreshed");
+// Funzione per ottenere e visualizzare i dati delle SLA
+function getAllSLA() {
+    fetch('/SLA/api/GetAll', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
         }
-    };
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data); // Controlla i dati ottenuti dalla chiamata API
+        const slaTableBody = document.querySelector('#sla_table tbody');
+        slaTableBody.innerHTML = ''; // Pulisce la tabella prima di aggiungere nuove righe
+
+        if (data && data.strings && data.strings.length > 0) {
+            data.strings.forEach(entry => {
+                // Ottieni il nome del cliente corrispondente all'ID del cliente
+                fetch(`/SLA/api/get_client_name/${entry["Client ID"]}`)
+                    .then(response => response.json())
+                    .then(clientData => {
+                        const clientName = clientData.client_name;
+                        const clientID = clientData.client_id;
+
+                        // Ottieni il nome del tipo di SLA corrispondente all'ID del tipo di SLA
+                        fetch(`/SLA/api/get_sla_type_name/${entry["SLA Type"]}`)
+                            .then(response => response.json())
+                            .then(slaTypeData => {
+                                const slaTypeName = slaTypeData.sla_type_name;
+
+                                // Aggiungi riga alla tabella
+                                const row = slaTableBody.insertRow();
+                                row.innerHTML = `
+                                    <td>${entry.ID}</td>
+                                    <td><a href="/manage/customers/${clientID}/view?cid={{session['current_case'].case_id}}"> ${clientName} </a></td>
+                                    <td>${slaTypeName}</td>
+                                    <td>${entry.CRITICAL}</td>
+                                    <td>${entry.HIGH}</td>
+                                    <td>${entry.MEDIUM}</td>
+                                    <td>${entry.LOW}</td>
+                                `;
+                            });
+                    });
+            });
+        } else {
+            const row = slaTableBody.insertRow();
+            row.innerHTML = '<td colspan="7">Nessuna SLA trovata</td>'; // Modifica il colspan in base al numero di colonne
+        }
+    })
+    .catch(error => console.error('Errore:', error));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    getAllSLA();
+});
+
+function refresh_sla_table(do_notify) {
+    getAllSLA();
+    if (do_notify !== undefined) {
+        notify_success("Refreshed");
+    }
+};
 
 // Funzione per aggiornare il cliente associato alla SLA
 function updateClientSLA(clientId, slaId) {
