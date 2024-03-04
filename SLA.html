@@ -22,6 +22,7 @@
                                     <button type="button" class="btn btn-sm btn-dark float-right ml-2" onclick="refresh_sla_table(true);">
                                         Refresh
                                     </button>
+                                    <button class="btn btn-sm btn-dark float-right ml-2" onclick="edit_SLA();">Edit SLA</button>
                                     <button class="btn btn-sm btn-dark float-right ml-2" onclick="add_SLA();">Add SLA</button>
                                     <!-- Qui eventuali bottoni per azioni -->
                                 </div>
@@ -109,7 +110,54 @@
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
             </div>
-        </div>
+           <div class="modal" tabindex="-1" role="dialog" id="modal_edit_SLA" data-backdrop="true">
+    <div class="modal-lg modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifica SLA</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="edit_client_id">Tenant:</label>
+                    <select class="form-control" id="edit_client_id" onchange="toggleSLAFieldsVisibility();">
+                        <!-- Opzioni per selezionare il cliente -->
+                    </select>
+                </div>
+                <div id="edit_sla_fields">
+                    <div class="form-group">
+                        <label for="edit_sla_type_id">SLA Type:</label>
+                        <select class="form-control" id="edit_sla_type_id">
+                            <!-- Opzioni per selezionare il tipo SLA -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_critical">CRITICAL:</label>
+                        <input type="number" class="form-control" id="edit_critical" name="edit_critical">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_high">HIGH:</label>
+                        <input type="number" class="form-control" id="edit_high" name="edit_high">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_medium">MEDIUM:</label>
+                        <input type="number" class="form-control" id="edit_medium" name="edit_medium">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_low">LOW:</label>
+                        <input type="number" class="form-control" id="edit_low" name="edit_low">
+                    </div>
+                </div>   
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger ml-4 mt-5 float-left" onclick="deleteSLA();">Delete</button>
+                <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" onclick="updateSLA();">Update</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
     {% endif %}
 {% endblock content %}
 
