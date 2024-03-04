@@ -1,0 +1,118 @@
+{% extends "layouts/default.html" %}
+
+{% block title %} Manage SLA {% endblock title %}
+
+{% block stylesheets %}
+    <!-- Includi qui eventuali fogli di stile aggiuntivi -->
+    <link rel="stylesheet" href="/static/assets/css/suggestags.css">
+{% endblock stylesheets %}
+
+{% block content %}
+    {% if current_user.is_authenticated %}
+        <div class="page-inner">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card-title">SLA Management</div>
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-sm btn-dark float-right ml-2" onclick="refresh_sla_table(true);">
+                                        Refresh
+                                    </button>
+                                    <button class="btn btn-sm btn-dark float-right ml-2" onclick="add_SLA();">Add SLA</button>
+                                    <!-- Qui eventuali bottoni per azioni -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive" id="sla_table_wrapper">
+                                <table class="table display table-striped table-hover" width="100%" cellspacing="0" id="sla_table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Tenant Name</th>
+                                            <th>SLA Type</th>
+                                            <th>CRITICAL</th>
+                                            <th>HIGH</th>
+                                            <th>MEDIUM</th>
+                                            <th>LOW</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Tenant Name</th>
+                                            <th>SLA Type</th>
+                                            <th>CRITICAL</th>
+                                            <th>HIGH</th>
+                                            <th>MEDIUM</th>
+                                            <th>LOW</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        <!-- Qui verranno inseriti dinamicamente i dati delle SLA -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal" tabindex="-1" role="dialog" id="modal_add_SLA" data-backdrop="true">
+                <div class="modal-lg modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Aggiungi nuova SLA</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add_sla_form">
+                                <div class="form-group">
+                                    <label for="client_id">Tenant:</label>
+                                    <select class="form-control" id="client_id">
+                                        <!-- Opzioni per selezionare il cliente -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sla_type_id">SLA Type:</label>
+                                    <select class="form-control" id="sla_type_id">
+                                        <!-- Opzioni per selezionare il tipo SLA -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="critical">CRITICAL:</label>
+                                    <input type="number" class="form-control" id="critical" name="critical">
+                                </div>
+                                <div class="form-group">
+                                    <label for="high">HIGH:</label>
+                                    <input type="number" class="form-control" id="high" name="high">
+                                </div>
+                                <div class="form-group">
+                                    <label for="medium">MEDIUM:</label>
+                                    <input type="number" class="form-control" id="medium" name="medium">
+                                </div>
+                                <div class="form-group">
+                                    <label for="low">LOW:</label>
+                                    <input type="number" class="form-control" id="low" name="low">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" data-dismiss="modal">Annulla</button>
+                            <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" onclick="saveSLA()">Salva</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}
+
+{% block javascripts %}
+<script src="/static/assets/js/iris/manage.SLA.js"></script>
+{% endblock javascripts %}
