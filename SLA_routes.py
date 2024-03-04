@@ -126,7 +126,6 @@ def get_all_sla_types():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @SLA_blueprint.route('/SLA/api/put_sla/<int:client_id>', methods=['PUT'])
 def put_sla(client_id):
     try:
@@ -175,5 +174,126 @@ def get_sla_id_by_client(client_id):
         sla_id = sla.id_SLA
 
         return jsonify({'sla_id': sla_id}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@SLA_blueprint.route('/SLA/api/get_sla_by_id/<int:sla_id>', methods=['GET'])
+def get_sla_by_id(sla_id):
+    try:
+        # Trova lo SLA con l'ID specificato
+        sla = SLA.query.get(sla_id)
+
+        if not sla:
+            return jsonify({'error': 'SLA non trovata'}), 404
+
+        # Crea un dizionario con i dettagli dello SLA
+        sla_details = {
+            'id': sla.id_SLA,
+            'client_id': sla.client_id,
+            'sla_type_id': sla.SLA_type_id,
+            'critical': sla.CRITICAL,
+            'high': sla.HIGH,
+            'medium': sla.MEDIUM,
+            'low': sla.LOW
+        }
+
+        return jsonify(sla_details), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@SLA_blueprint.route('/SLA/api/update_sla/<int:sla_id>', methods=['PUT'])
+def update_sla(sla_id):
+    try:
+        # Trova lo SLA con l'ID specificato
+        sla = SLA.query.get(sla_id)
+
+        if not sla:
+            return jsonify({'error': 'SLA non trovata'}), 404
+
+        # Ottieni i nuovi dati dello SLA dalla richiesta
+        data = request.json
+
+        # Aggiorna i valori dello SLA se presenti nei dati della richiesta
+        if 'client_id' in data:
+            sla.client_id = data['client_id']
+        if 'sla_type_id' in data:
+            sla.SLA_type_id = data['sla_type_id']
+        if 'critical' in data:
+            sla.CRITICAL = data['critical']
+        if 'high' in data:
+            sla.HIGH = data['high']
+        if 'medium' in data:
+            sla.MEDIUM = data['medium']
+        if 'low' in data:
+            sla.LOW = data['low']
+
+        # Aggiorna lo SLA nel database
+        db.session.commit()
+
+        return jsonify({'message': 'SLA aggiornata con successo'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@SLA_blueprint.route('/SLA/api/delete_sla/<int:sla_id>', methods=['DELETE'])
+def delete_sla(sla_id):
+    try:
+        # Trova lo SLA con l'ID specificato
+        sla = SLA.query.get(sla_id)
+
+        if not sla:
+            return jsonify({'error': 'SLA non trovata'}), 404
+
+        # Elimina lo SLA dal database
+        db.session.delete(sla)
+        db.session.commit()
+
+        return jsonify({'message': 'SLA eliminata con successo'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@SLA_blueprint.route('/SLA/api/get_sla_details/<int:sla_id>', methods=['GET'])
+def get_sla_details(sla_id):
+    try:
+        # Trova lo SLA con l'ID specificato
+        sla = SLA.query.get(sla_id)
+
+        if not sla:
+            return jsonify({'error': 'SLA non trovata'}), 404
+
+        # Crea un dizionario con i dettagli dello SLA
+        sla_details = {
+            'id': sla.id_SLA,
+            'client_id': sla.client_id,
+            'sla_type_id': sla.SLA_type_id,
+            'critical': sla.CRITICAL,
+            'high': sla.HIGH,
+            'medium': sla.MEDIUM,
+            'low': sla.LOW
+        }
+
+        return jsonify(sla_details), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# API per recuperare i clienti senza SLA
+@SLA_blueprint.route('/SLA/api/clients_without_sla', methods=['GET'])
+def get_clients_without_sla():
+    try:
+        clients = Client.query.filter_by(sla=None).all()
+        client_list = [{'id': client.client_id, 'name': client.name} for client in clients]
+        return jsonify({'clients': client_list}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# API per recuperare i clienti con SLA associata
+@SLA_blueprint.route('/SLA/api/clients_with_sla', methods=['GET'])
+def get_clients_with_sla():
+    try:
+        clients = Client.query.filter(Client.sla.isnot(None)).all()
+        client_list = [{'id': client.client_id, 'name': client.name} for client in clients]
+        return jsonify({'clients': client_list}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
