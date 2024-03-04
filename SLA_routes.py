@@ -126,6 +126,7 @@ def get_all_sla_types():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @SLA_blueprint.route('/SLA/api/put_sla/<int:client_id>', methods=['PUT'])
 def put_sla(client_id):
     try:
