@@ -297,3 +297,46 @@ def get_clients_with_sla():
         return jsonify({'clients': client_list}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@SLA_blueprint.route('/SLA/api/update_sla_type/<int:sla_type_id>', methods=['PUT'])
+def update_sla_type(sla_type_id):
+    try:
+        # Trova lo SLA con l'ID specificato
+        sla_type = SLA_type.query.get(sla_type_id)
+
+        if not sla_type:
+            return jsonify({'error': 'SLA type non trovata'}), 404
+
+        # Ottieni i nuovi dati dello SLA dalla richiesta
+        data = request.json
+
+        # Aggiorna i valori dello SLA se presenti nei dati della richiesta
+        if 'id_type' in data:
+            sla_type.id_type = data['id_type']
+        if 'piano_ore' in data:
+            sla_type.piano_ore = data['piano_ore']
+        # Aggiorna lo SLA nel database
+        db.session.commit()
+
+        return jsonify({'message': 'SLA type aggiornata con successo'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
+@SLA_blueprint.route('/SLA/api/delete_sla_type/<int:sla_type_id>', methods=['DELETE'])
+def delete_sla_type(sla_type_id):
+    try:
+        # Trova lo SLA con l'ID specificato
+        sla_type = SLA_type.query.get(sla_type_id)
+
+        if not sla_type:
+            return jsonify({'error': 'SLA type non trovata'}), 404
+
+        # Elimina lo SLA dal database
+        db.session.delete(sla_type)
+        db.session.commit()
+
+        return jsonify({'message': 'SLA type eliminata con successo'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

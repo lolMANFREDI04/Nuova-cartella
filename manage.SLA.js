@@ -15,7 +15,7 @@ function add_SLA() {
                 option.text = client.name;
                 clientDropdown.appendChild(option);
             });
-
+            
             // Mostra il modale
             $('#modal_add_SLA').modal('show');
         },
@@ -52,7 +52,7 @@ function saveSLA() {
         success: function(response) {
             // Se il salvataggio ha successo, chiudi il modale e mostra un messaggio di conferma
             $('#modal_add_SLA').modal('hide');
-            
+            refresh_sla_type_table(true)
             // Ottieni l'ID della SLA appena creata utilizzando l'API per ottenere l'ID
             getSLAIdByClient(client_id);
         },
@@ -99,66 +99,67 @@ function getAllSLATypes() {
 document.addEventListener('DOMContentLoaded', function() {
     getAllSLATypes();
 });
-    // Funzione per ottenere e visualizzare i dati delle SLA
-    function getAllSLA() {
-        fetch('/SLA/api/GetAll', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data); // Controlla i dati ottenuti dalla chiamata API
-            const slaTableBody = document.querySelector('#sla_table tbody');
-            slaTableBody.innerHTML = ''; // Pulisce la tabella prima di aggiungere nuove righe
 
-            if (data && data.strings && data.strings.length > 0) {
-                data.strings.forEach(entry => {
-                    // Ottieni il nome del cliente corrispondente all'ID del cliente
-                    fetch(`/SLA/api/get_client_name/${entry["Client ID"]}`)
-                        .then(response => response.json())
-                        .then(clientData => {
-                            const clientName = clientData.client_name;
-                            const clientID = clientData.client_id;
+// Funzione per ottenere e visualizzare i dati delle SLA
+function getAllSLA() {
+    fetch('/SLA/api/GetAll', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data); // Controlla i dati ottenuti dalla chiamata API
+        const slaTableBody = document.querySelector('#sla_table tbody');
+        slaTableBody.innerHTML = ''; // Pulisce la tabella prima di aggiungere nuove righe
 
-                            // Ottieni il nome del tipo di SLA corrispondente all'ID del tipo di SLA
-                            fetch(`/SLA/api/get_sla_type_name/${entry["SLA Type"]}`)
-                                .then(response => response.json())
-                                .then(slaTypeData => {
-                                    const slaTypeName = slaTypeData.sla_type_name;
+        if (data && data.strings && data.strings.length > 0) {
+            data.strings.forEach(entry => {
+                // Ottieni il nome del cliente corrispondente all'ID del cliente
+                fetch(`/SLA/api/get_client_name/${entry["Client ID"]}`)
+                    .then(response => response.json())
+                    .then(clientData => {
+                        const clientName = clientData.client_name;
+                        const clientID = clientData.client_id;
 
-                                    // Aggiungi riga alla tabella
-                                    const row = slaTableBody.insertRow();
-                                    row.innerHTML = `
-                                        <td>${entry.ID}</td>
-                                        <td><a href="/manage/customers/${clientID}/view?cid={{session['current_case'].case_id}}"> ${clientName} </a></td> 
-                                        <td>${slaTypeName}</td> 
-                                        <td>${entry.CRITICAL}</td>
-                                        <td>${entry.HIGH}</td>
-                                        <td>${entry.MEDIUM}</td>
-                                        <td>${entry.LOW}</td>
-                                    `;
-                                });
-                        });
-                });
-            } else {
-                const row = slaTableBody.insertRow();
-                row.innerHTML = '<td colspan="7">Nessuna SLA trovata</td>'; // Modifica il colspan in base al numero di colonne
-            }
-        })
-        .catch(error => console.error('Errore:', error));
-    }
+                        // Ottieni il nome del tipo di SLA corrispondente all'ID del tipo di SLA
+                        fetch(`/SLA/api/get_sla_type_name/${entry["SLA Type"]}`)
+                            .then(response => response.json())
+                            .then(slaTypeData => {
+                                const slaTypeName = slaTypeData.sla_type_name;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        getAllSLA();
-    });
+                                // Aggiungi riga alla tabella
+                                const row = slaTableBody.insertRow();
+                                row.innerHTML = `
+                                    <td>${entry.ID}</td>
+                                    <td><a href="/manage/customers/${clientID}/view?cid={{session['current_case'].case_id}}"> ${clientName} </a></td> 
+                                    <td>${slaTypeName}</td> 
+                                    <td>${entry.CRITICAL}</td>
+                                    <td>${entry.HIGH}</td>
+                                    <td>${entry.MEDIUM}</td>
+                                    <td>${entry.LOW}</td>
+                                `;
+                            });
+                    });
+            });
+        } else {
+            const row = slaTableBody.insertRow();
+            row.innerHTML = '<td colspan="7">Nessuna SLA trovata</td>'; // Modifica il colspan in base al numero di colonne
+        }
+    })
+    .catch(error => console.error('Errore:', error));
+}
 
-    function refresh_sla_table(do_notify) {
+document.addEventListener('DOMContentLoaded', function() {
     getAllSLA();
-    if (do_notify !== undefined) {
-        notify_success("Refreshed");
-    }
+});
+
+function refresh_sla_table(do_notify) {
+getAllSLA();
+if (do_notify !== undefined) {
+    notify_success("Refreshed");
+}
 };
 
 // Funzione per aggiornare il cliente associato alla SLA
@@ -470,4 +471,251 @@ function toggleSLAFieldsVisibility() {
         // Se non è stato selezionato un cliente, nascondi i campi di modifica SLA
         $('#edit_sla_fields').hide();
     }
+}
+
+///////funzioni per il SLA type
+
+// Funzione per ottenere e visualizzare i dati dei tipi di SLA
+function getAllSlaType() {
+    fetch('/SLA/api/get_all_sla_types', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // debugger;
+
+        console.log(data); // Controlla i dati ottenuti dalla chiamata API
+        const slaTableBody = document.querySelector('#users_table tbody');
+        slaTableBody.innerHTML = ''; // Pulisce la tabella prima di aggiungere nuove righe
+
+        if (data && data.sla_types && data.sla_types.length > 0) {
+            data.sla_types.forEach(slaType => {
+                // Aggiungi riga alla tabella
+                debugger;
+                const row = slaTableBody.insertRow();
+                row.innerHTML = `
+                    <td>${slaType.id}</td>
+                    <td>${slaType.name}</td>
+                `;
+            });
+        } else {
+            const row = slaTableBody.insertRow();
+            row.innerHTML = '<td colspan="7">Nessuna SLA trovata</td>'; // Modifica il colspan in base al numero di colonne
+        }
+    })
+    .catch(error => console.error('Errore:', error));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    getAllSlaType();
+});
+
+function refresh_sla_type_table(do_notify) {
+    getAllSlaType();
+    if (do_notify !== undefined) {
+        notify_success("Refreshed");
+    }
+};
+
+
+function add_SLA_type() {
+    // Esegui una richiesta AJAX per ottenere la lista dei clienti
+    $.ajax({
+        url: '/SLA/api/get_all_sla_types',
+        type: 'GET',
+        success: function(response) {
+
+            const Sla_Types = response.sla_types;
+
+            $('#modal_access_control').modal('show');
+        },
+        error: function(xhr, status, error) {
+            // Se si verifica un errore durante il recupero dei clienti, mostra un messaggio di errore
+            alert("Si è verificato un errore durante il recupero dei clienti.");
+            console.error(xhr.responseText); // Mostra i dettagli dell'errore nella console del browser
+        }
+    });
+}
+
+function saveSLA_type() {
+    var piano_ore = $('#piano_ore').val();
+
+    // Effettua la chiamata AJAX al backend per salvare l'SLA
+    $.ajax({
+        url: '/manage/SLA_type/save',
+        type: 'POST',
+        data: {
+            piano_ore: piano_ore
+        },
+        success: function(response) {
+            // Se il salvataggio ha successo, chiudi il modale e mostra un messaggio di conferma
+            $('#modal_access_control').modal('hide');
+            refresh_sla_type_table(true);
+        
+        },
+        error: function(xhr, status, error) {
+            // Se si verifica un errore durante il salvataggio, mostra un messaggio di errore
+            alert("Si è verificato un errore durante il salvataggio della SLA type.");
+            console.error(xhr.responseText); // Mostra i dettagli dell'errore nella console del browser
+        }
+    });
+}
+
+function toggleSlaTypeFieldsVisibility(){
+    debugger;
+    if ($('#edit_id_sla_type').val() !== '') {
+        // Se è stato selezionato un cliente, mostra i campi SLA
+        $('#edit_sla_type_fields').show();
+
+        // Aggiungi un evento change al dropdown del cliente per gestire il caricamento dei dati dell'SLA corrispondente
+        $('#edit_id_sla_type').change(function() {
+            const sla_type_Id = $(this).val();
+            if (sla_type_Id !== '') {
+                
+                // Se è stato selezionato un cliente, popola la modale con i dati dell'SLA corrispondente
+                populateSlaTypeEditModal(sla_type_Id);
+            } else {
+                // Se non è stato selezionato un cliente, nascondi i campi di modifica SLA
+                $('#edit_sla_type_fields').hide();
+            }
+        });
+    } else {
+        // Se non è stato selezionato un cliente, nascondi i campi di modifica SLA
+        $('#edit_sla_type_fields').hide();
+    }
+}
+
+function populateSlaTypeEditModal(sla_type_Id){
+
+    // Ora esegui un'altra richiesta AJAX per ottenere i dettagli dell'SLA
+    $.ajax({
+        url: `/SLA/api/get_sla_type_name/${sla_type_Id}`,
+        type: 'GET',
+        success: function(response) {
+            debugger;
+            // Se la richiesta ha successo, popola i campi della modale di modifica
+            $('#edit_piano_ore').val(response.sla_type_name);
+
+            // Mostra i campi di modifica SLA
+            $('#edit_sla_type_fields').show();
+        },
+        error: function(xhr, status, error) {
+            console.error("Errore durante il recupero dei dettagli dell'SLA:", error);
+            alert("Si è verificato un errore durante il recupero dei dettagli dell'SLA.");
+        }
+    });
+}
+
+function edit_SLA_type() {
+    // Ora esegui una seconda richiesta AJAX per ottenere la lista dei tipi di SLA
+    $.ajax({
+        url: '/SLA/api/get_all_sla_types',
+        type: 'GET',
+        success: function(response) {
+            // Se la richiesta ha successo, popola il dropdown dei tipi di SLA
+            const slaTypes = response.sla_types;
+            const slaTypeDropdown = document.getElementById('edit_id_sla_type');
+            slaTypeDropdown.innerHTML = ''; // Pulisci il dropdown
+
+            // Aggiungi una opzione vuota per consentire la selezione di default
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.text = 'Seleziona un id';
+            slaTypeDropdown.appendChild(defaultOption);
+
+            slaTypes.forEach(slaType => {
+                const option = document.createElement('option');
+                option.value = slaType.id;
+                option.text = slaType.name;
+                slaTypeDropdown.appendChild(option);
+            });
+                        
+            // Mostra il modale di modifica
+            $('#modal_edit_SLA_type').modal('show');
+
+            // Nascondi i campi di modifica SLA
+            $('#edit_sla_type_fields').hide();
+            
+
+            // Esegui manualmente la funzione per aggiornare la visibilità dei campi SLA
+            toggleSlaTypeFieldsVisibility();
+        },
+        error: function(xhr, status, error) {
+            // Se si verifica un errore durante il recupero dei tipi di SLA, mostra un messaggio di errore
+            alert("Si è verificato un errore durante il recupero dei tipi di SLA.");
+            console.error(xhr.responseText); // Mostra i dettagli dell'errore nella console del browser
+        }
+    });
+}
+
+// Aggiungi un evento change al dropdown del cliente per gestire la visualizzazione dei campi SLA
+$('#edit_id_sla_type').change(function() {
+    if ($(this).val() !== '') {
+        // Se è stato selezionato un cliente, mostra i campi SLA
+        $('#edit_piano_ore, #edit_update_btn, #edit_delete_btn').show();
+    } else {
+        // Se non è stato selezionato un cliente, nascondi i campi SLA
+        $('#edit_piano_ore, #edit_update_btn, #edit_delete_btn').hide();
+    }
+});
+
+// Chiudi la modale di modifica quando viene nascosta
+$('#modal_edit_SLA_type').on('hidden.bs.modal', function() {
+    // Resetta il valore del dropdown del cliente e nascondi i campi SLA
+    $('#edit_id_sla_type').val('');
+    $('#edit_piano_ore, #edit_update_btn, #edit_delete_btn').hide();
+});
+
+
+function updateSLAType() {
+    var id_type = $('#edit_id_sla_type').val(); // Ottieni l'ID del cliente dalla modale
+    var piano_ore = $('#edit_piano_ore').val();
+    
+    // Effettua la chiamata AJAX per aggiornare lo SLA con l'ID ottenuto
+    $.ajax({
+        url: `/SLA/api/update_sla_type/${id_type}`,
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            id_type: id_type,
+            piano_ore: piano_ore,
+        }),
+        success: function(response) {
+            // Se l'aggiornamento ha successo, mostra un messaggio di conferma
+            alert(response.message);
+            // Aggiorna la tabella SLA
+            refresh_sla_type_table(true);
+            // Chiudi la modale
+            $('#modal_edit_SLA_type').modal('hide');
+        },
+        error: function(xhr, status, error) {
+            // Se si verifica un errore durante l'aggiornamento, mostra un messaggio di errore
+            alert("Si è verificato un errore durante l'aggiornamento dello SLA Type.");
+            console.error(xhr.responseText); // Mostra i dettagli dell'errore nella console del browser
+        }
+    });   
+}
+
+function deleteSLAType() {
+    var sla_type_id = $('#edit_id_sla_type').val(); // Ottieni l'ID del cliente dalla modale
+    $.ajax({
+        url: `/SLA/api/delete_sla_type/${sla_type_id}`,
+        type: 'DELETE',
+        success: function(response) {
+            // Se l'eliminazione ha successo, mostra un messaggio di conferma
+            alert(response.message);
+            // Aggiorna la tabella SLA
+            refresh_sla_type_table(true);
+            // Chiudi la modale
+            $('#modal_edit_SLA_type').modal('hide');
+        },
+        error: function(xhr, status, error) {
+            // Se si verifica un errore durante l'eliminazione, mostra un messaggio di errore
+            alert("Si è verificato un errore durante l'eliminazione dello SLA Type.");
+            console.error(xhr.responseText); // Mostra i dettagli dell'errore nella console del browser
+        }
+    });
 }

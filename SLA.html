@@ -5,6 +5,7 @@
 {% block stylesheets %}
     <!-- Includi qui eventuali fogli di stile aggiuntivi -->
     <link rel="stylesheet" href="/static/assets/css/suggestags.css">
+    <link rel="stylesheet" href="/static/assets/css/bootstrap-multiselect.min.css">
 {% endblock stylesheets %}
 
 {% block content %}
@@ -22,8 +23,8 @@
                                     <button type="button" class="btn btn-sm btn-dark float-right ml-2" onclick="refresh_sla_table(true);">
                                         Refresh
                                     </button>
-                                    <button class="btn btn-sm btn-dark float-right ml-2" onclick="edit_SLA();">Edit SLA</button>
-                                    <button class="btn btn-sm btn-dark float-right ml-2" onclick="add_SLA();">Add SLA</button>
+                                    <button class="btn btn-sm btn-dark float-right ml-2" onclick="edit_SLA();">Edit</button>
+                                    <button class="btn btn-sm btn-dark float-right ml-2" onclick="add_SLA();">Add</button>
                                     <!-- Qui eventuali bottoni per azioni -->
                                 </div>
                             </div>
@@ -60,6 +61,49 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- card 2 (sla type) -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col col-heading" href="#collapse_user_mgmt" title="Click to unfold"  data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapse_user_mgmt">
+                                    <span class="accicon float-left mr-3"><i class="fas fa-angle-right rotate-icon"></i></span>
+                                    <div class="card-title">SLA Type Management</div>
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-sm btn-dark float-right ml-2" onclick="refresh_sla_type_table(true);">Refresh</button>
+                                    <button type="button" class="btn btn-sm btn-dark float-right ml-2" onclick="edit_SLA_type()">Edit</button>
+                                    <button class="btn btn-sm btn-dark float-right ml-2" onclick="add_SLA_type();">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" id="collapse_user_mgmt">
+                            <div class="table-responsive" id="users_table_wrapper">
+                                <div class="selectgroup">
+                                    <span id="table_buttons"></span>
+                                </div>
+                                <table class="table display table table-striped table-hover" width="100%"
+                                    cellspacing="0" id="users_table">
+                                    <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>SLA Type Name</th>
+                                    </tr>
+                                    </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>SLA Type Name</th>
+                                    </tr>
+                                    </tfoot>
+                                    <tbody>
+        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="modal" tabindex="-1" role="dialog" id="modal_add_SLA" data-backdrop="true">
@@ -110,54 +154,119 @@
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
             </div>
-           <div class="modal" tabindex="-1" role="dialog" id="modal_edit_SLA" data-backdrop="true">
-    <div class="modal-lg modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Modifica SLA</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            
+            <!-- a seguirele la modale per editare una SLA -->
+
+            <div class="modal" tabindex="-1" role="dialog" id="modal_edit_SLA" data-backdrop="true">
+                <div class="modal-lg modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Modifica SLA</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="edit_client_id">Tenant:</label>
+                                <select class="form-control" id="edit_client_id" onchange="toggleSLAFieldsVisibility();">
+                                    <!-- Opzioni per selezionare il cliente -->
+                                </select>
+                            </div>
+                            <div id="edit_sla_fields">
+                                <div class="form-group">
+                                    <label for="edit_sla_type_id">SLA Type:</label>
+                                    <select class="form-control" id="edit_sla_type_id">
+                                        <!-- Opzioni per selezionare il tipo SLA -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_critical">CRITICAL:</label>
+                                    <input type="number" class="form-control" id="edit_critical" name="edit_critical">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_high">HIGH:</label>
+                                    <input type="number" class="form-control" id="edit_high" name="edit_high">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_medium">MEDIUM:</label>
+                                    <input type="number" class="form-control" id="edit_medium" name="edit_medium">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_low">LOW:</label>
+                                    <input type="number" class="form-control" id="edit_low" name="edit_low">
+                                </div>
+                            </div>   
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-danger ml-4 mt-5 float-left" onclick="deleteSLA();">Delete</button>
+                            <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" onclick="updateSLA();">Update</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="edit_client_id">Tenant:</label>
-                    <select class="form-control" id="edit_client_id" onchange="toggleSLAFieldsVisibility();">
-                        <!-- Opzioni per selezionare il cliente -->
-                    </select>
-                </div>
-                <div id="edit_sla_fields">
-                    <div class="form-group">
-                        <label for="edit_sla_type_id">SLA Type:</label>
-                        <select class="form-control" id="edit_sla_type_id">
-                            <!-- Opzioni per selezionare il tipo SLA -->
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_critical">CRITICAL:</label>
-                        <input type="number" class="form-control" id="edit_critical" name="edit_critical">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_high">HIGH:</label>
-                        <input type="number" class="form-control" id="edit_high" name="edit_high">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_medium">MEDIUM:</label>
-                        <input type="number" class="form-control" id="edit_medium" name="edit_medium">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_low">LOW:</label>
-                        <input type="number" class="form-control" id="edit_low" name="edit_low">
-                    </div>
-                </div>   
+            
+            <!-- da qui iniziano le modali per lo SLA type -->
+
+            <div class="modal" tabindex="-1" role="dialog" id="modal_access_control" data-backdrop="true">
+                <div class="modal-lg modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Aggiungi un nuovo SLA type</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add_sla_type_form">
+                                <div class="form-group">
+                                    <label for="piano_ore">Piano Orario:</label>
+                                    <input type="text" class="form-control" id="piano_ore" name="piano_ore">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" data-dismiss="modal">Annulla</button>
+                            <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" onclick="saveSLA_type()">Salva</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-danger ml-4 mt-5 float-left" onclick="deleteSLA();">Delete</button>
-                <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" onclick="updateSLA();">Update</button>
+                        
+            <!-- modale per editare lo SLA type -->
+
+            <div class="modal" tabindex="-1" role="dialog" id="modal_edit_SLA_type" data-backdrop="true">
+                <div class="modal-lg modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Modifica SLA Type</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="edit_id_sla_type">SLA Type:</label>
+                                <select class="form-control" id="edit_id_sla_type" onchange="toggleSlaTypeFieldsVisibility();">
+                                    <!-- Opzioni per selezionare il cliente -->
+                                </select>
+                            </div>
+                            <div id="edit_sla_type_fields">
+                                <div class="form-group">
+                                    <label for="edit_piano_ore">Modifica Piano Orario:</label>
+                                    <input type="text" class="form-control" id="edit_piano_ore" name="edit_piano_ore">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-danger ml-4 mt-5 float-left" onclick="deleteSLAType();">Delete</button>
+                            <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" onclick="updateSLAType();">Update</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
             </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div>
+
+        </div>
     {% endif %}
 {% endblock content %}
 
