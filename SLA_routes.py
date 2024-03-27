@@ -52,7 +52,7 @@ SLA_blueprint = Blueprint('GestioneSLA',
                              __name__,
                              template_folder='templates')
 
-@SLA_blueprint.route('/GestioneSLA', methods=['GET'])
+@SLA_blueprint.route('/manage/SLA', methods=['GET'])
 @ac_requires(Permissions.server_administrator)
 def test_file_get(caseid, url_redir):
     return render_template('SLA.html')
@@ -322,7 +322,7 @@ def update_sla_type(sla_type_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-    
+   
 @SLA_blueprint.route('/SLA/api/delete_sla_type/<int:sla_type_id>', methods=['DELETE'])
 def delete_sla_type(sla_type_id):
     try:
@@ -339,4 +339,23 @@ def delete_sla_type(sla_type_id):
         return jsonify({'message': 'SLA type eliminata con successo'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@SLA_blueprint.route('/SLA/api/save/existing', methods=['POST'])
+def save_sla_type():
+    try:
+        piano_ore = request.form.get('piano_ore')
+
+        # Verifica se esiste già un SLA type con lo stesso nome
+        existing_sla_type = SLA_type.query.filter_by(piano_ore=piano_ore).first()
+        if existing_sla_type:
+            return jsonify({'error': 'SLA type con lo stesso nome esiste già'}), 400
+
+        # Crea un nuovo SLA type
+        new_sla_type = SLA_type(piano_ore=piano_ore)
+        db.session.add(new_sla_type)
+        db.session.commit()
+
+        return jsonify({'message': 'SLA type salvato con successo'}), 200
+    except Exception as e:
         return jsonify({'error': str(e)}), 500

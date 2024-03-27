@@ -6,6 +6,7 @@
     <!-- Includi qui eventuali fogli di stile aggiuntivi -->
     <link rel="stylesheet" href="/static/assets/css/suggestags.css">
     <link rel="stylesheet" href="/static/assets/css/bootstrap-multiselect.min.css">
+    <link href="/static/assets/css/dataTables.buttons.min.css" rel="stylesheet">
 {% endblock stylesheets %}
 
 {% block content %}
@@ -23,7 +24,6 @@
                                     <button type="button" class="btn btn-sm btn-dark float-right ml-2" onclick="refresh_sla_table(true);">
                                         Refresh
                                     </button>
-                                    <button class="btn btn-sm btn-dark float-right ml-2" onclick="edit_SLA();">Edit</button>
                                     <button class="btn btn-sm btn-dark float-right ml-2" onclick="add_SLA();">Add</button>
                                     <!-- Qui eventuali bottoni per azioni -->
                                 </div>
@@ -41,6 +41,7 @@
                                             <th>HIGH</th>
                                             <th>MEDIUM</th>
                                             <th>LOW</th>
+                                            <th>Azioni</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
@@ -52,6 +53,7 @@
                                             <th>HIGH</th>
                                             <th>MEDIUM</th>
                                             <th>LOW</th>
+                                            <th>Azioni</th>
                                         </tr>
                                     </tfoot>
                                     <tbody>
@@ -72,7 +74,6 @@
                                 </div>
                                 <div class="col">
                                     <button type="button" class="btn btn-sm btn-dark float-right ml-2" onclick="refresh_sla_type_table(true);">Refresh</button>
-                                    <button type="button" class="btn btn-sm btn-dark float-right ml-2" onclick="edit_SLA_type()">Edit</button>
                                     <button class="btn btn-sm btn-dark float-right ml-2" onclick="add_SLA_type();">Add</button>
                                 </div>
                             </div>
@@ -88,16 +89,18 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>SLA Type Name</th>
+                                        <th style="text-align: center">Azioni</th>
                                     </tr>
                                     </thead>
                                     <tfoot>
                                     <tr>
                                         <th>ID</th>
                                         <th>SLA Type Name</th>
+                                        <th style="text-align: center">Azioni</th>
                                     </tr>
                                     </tfoot>
                                     <tbody>
-        
+       
                                     </tbody>
                                 </table>
                             </div>
@@ -154,7 +157,7 @@
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
             </div>
-            
+           
             <!-- a seguirele la modale per editare una SLA -->
 
             <div class="modal" tabindex="-1" role="dialog" id="modal_edit_SLA" data-backdrop="true">
@@ -167,13 +170,10 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <div class="form-group">
-                                <label for="edit_client_id">Tenant:</label>
-                                <select class="form-control" id="edit_client_id" onchange="toggleSLAFieldsVisibility();">
-                                    <!-- Opzioni per selezionare il cliente -->
-                                </select>
-                            </div>
                             <div id="edit_sla_fields">
+                                <div class="form-group">
+                                    <input type="hidden" id="Hidden_Sla_Id">
+                                </div>
                                 <div class="form-group">
                                     <label for="edit_sla_type_id">SLA Type:</label>
                                     <select class="form-control" id="edit_sla_type_id">
@@ -196,16 +196,15 @@
                                     <label for="edit_low">LOW:</label>
                                     <input type="number" class="form-control" id="edit_low" name="edit_low">
                                 </div>
-                            </div>   
+                            </div>  
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-danger ml-4 mt-5 float-left" onclick="deleteSLA();">Delete</button>
                             <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" onclick="updateSLA();">Update</button>
                         </div>
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
             </div>
-            
+           
             <!-- da qui iniziano le modali per lo SLA type -->
 
             <div class="modal" tabindex="-1" role="dialog" id="modal_access_control" data-backdrop="true">
@@ -232,7 +231,7 @@
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
             </div>
-                        
+                       
             <!-- modale per editare lo SLA type -->
 
             <div class="modal" tabindex="-1" role="dialog" id="modal_edit_SLA_type" data-backdrop="true">
@@ -245,22 +244,20 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <div class="form-group">
-                                <label for="edit_id_sla_type">SLA Type:</label>
-                                <select class="form-control" id="edit_id_sla_type" onchange="toggleSlaTypeFieldsVisibility();">
-                                    <!-- Opzioni per selezionare il cliente -->
-                                </select>
+                            <div id="edit_sla_type_fields">
+
                             </div>
                             <div id="edit_sla_type_fields">
                                 <div class="form-group">
+                                    <input type="hidden" id="Hidden_Sla_Type_Id">
                                     <label for="edit_piano_ore">Modifica Piano Orario:</label>
                                     <input type="text" class="form-control" id="edit_piano_ore" name="edit_piano_ore">
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-danger ml-4 mt-5 float-left" onclick="deleteSLAType();">Delete</button>
-                            <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" onclick="updateSLAType();">Update</button>
+                            <button type="button" class="btn btn-outline-success ml-4 mt-5 float-right" data-dismiss="modal">Annulla</button>
+                            <button type="button" id="UpdateButtonSLAType" class="btn btn-outline-success ml-4 mt-5 float-right" onclick="updateSLAType();">Update</button>
                         </div>
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
@@ -271,5 +268,12 @@
 {% endblock content %}
 
 {% block javascripts %}
+<script src="/static/assets/js/plugin/datatables/dataTables.cellEdit.js"></script>
+<script src="/static/assets/js/plugin/datatables/dataTables.buttons.min.js"></script>
+<script src="/static/assets/js/plugin/datatables/buttons.html5.min.js"></script>
+<script src="/static/assets/js/plugin/datatables/buttons.print.min.js"></script>
+
+<script src="/static/assets/js/iris/datatablesUtils.js"></script>
+
 <script src="/static/assets/js/iris/manage.SLA.js"></script>
 {% endblock javascripts %}

@@ -102,9 +102,7 @@
 							</a>
 						</li>
 
-						<!-- inizio sezione di prova -->
 
-							
 						<li class="nav-section">
 							<span class="sidebar-mini-icon">
 								<i class="fa fa-ellipsis-h"></i>
@@ -112,23 +110,12 @@
 							<h4 class="text-section">Sviluppo</h4>
 						</li>
 
-						{% if user_has_perm(std_permissions.server_administrator) %}
 						<li class="nav-item">
-							<a href="/GestioneSLA?cid={{session['current_case'].case_id}}">
+							<a href="/test?cid={{session['current_case'].case_id}}">
 								<i class="fa-solid fa-toilet"></i>
-								<span>Gestione SLA</span>
+								<span>test</span>
 							</a>
 						</li>
-						{% endif %}
-						<li class="nav-item">
-							<a href="/Test?cid={{session['current_case'].case_id}}">
-								<i class="fa-solid fa-toilet"></i>
-								<span>Test</span>
-							</a>
-						</li>
-	
-						<!-- fine sezione di prova -->
-	
 
 						<li class="nav-section nav-advanced">
 							<span class="sidebar-mini-icon">
@@ -175,7 +162,14 @@
 											<span>Case Objects</span>
 										</a>
 									</li>
-
+									{% if user_has_perm(std_permissions.server_administrator) %}
+									<li class="nav-subitem">
+										<a href="/manage/SLA?cid={{session['current_case'].case_id}}">
+											<i class="fa-solid fa-clock"></i>
+											<span>SLA Management</span>
+										</a>
+									</li>
+									{% endif %}
 									<li class="nav-subitem">
 										<a href="/manage/attributes?cid={{session['current_case'].case_id}}">
 											<i class="flaticon-layers-1"></i>
